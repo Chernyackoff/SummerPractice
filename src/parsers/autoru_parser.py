@@ -24,6 +24,7 @@ class AutoRuParser():
         act = ActionChains(self.driver)
         self.driver.get(self.url)
         result = []
+
         # get all car cards
         try:
             cars = self.driver.find_elements(By.CLASS_NAME, "ListingItem")
@@ -31,6 +32,7 @@ class AutoRuParser():
             print(f"Error: {e}")
             raise ValueError("No items found")
 
+        # parse car info
         for item in cars:
             car = CarCard()
             try:
@@ -49,6 +51,7 @@ class AutoRuParser():
 
                 year = item.find_element(By.CLASS_NAME, "ListingItem__year").text
 
+                # TODO: get image urls from autoru
                 # img = item.find_element(By.CLASS_NAME, "Brazzers__image-wrapper")
                 # img_link = img.find_element(By.TAG_NAME, "img").get_attribute('src')
 
@@ -56,7 +59,7 @@ class AutoRuParser():
                 print(f'{e}')
                 continue
 
-            if (all([name, url, mileage, price, color, year])):
+            if all([name, url, mileage, price, color, year]):
                 car['site'] = 'autoru'
                 car['name'] = name
                 car['url'] = url
