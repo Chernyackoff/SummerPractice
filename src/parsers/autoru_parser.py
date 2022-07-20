@@ -1,14 +1,11 @@
-from selenium.webdriver.support.wait import WebDriverWait
-from selenium.webdriver.common.action_chains import ActionChains
-from src.parsers.adapter import Car, CarCard
-from src.parsers.adapter import Session
-from selenium.webdriver.support import expected_conditions as ec
+from src.parsers.service_parts import Car, CarCard
+from src.parsers.service_parts import Session
 from selenium.webdriver.common.by import By
 
 
-class AutoRuParser():
-    def __init__(self, parameters: Car, session: Session):
-        self.driver = session.driver
+class AutoRuParser:
+    def __init__(self, parameters: Car):
+        self.driver = Session().driver
         self.params = parameters
         self.url = self.compose_url()
 
@@ -20,8 +17,15 @@ class AutoRuParser():
             # TODO: add more parameters
             raise ValueError("No way")
 
-    def parse(self) -> list:
-        act = ActionChains(self.driver)
+    def get_img(self, item) -> str:
+        try:
+            img = item.find_elements(By.CLASS_NAME, 'Brazzers__page')
+            img_url = img[1].find_element(By.TAG_NAME, 'img').get_attribute('src')
+            return img_url
+        except Exception:
+            return 'No'
+
+    def parse(self) -> list[CarCard]:
         self.driver.get(self.url)
         result = []
 
@@ -34,7 +38,6 @@ class AutoRuParser():
 
         # parse car info
         for item in cars:
-            car = CarCard()
             try:
                 info = item.find_element(By.CLASS_NAME, "ListingItemTitle__link")
                 name = info.text
@@ -51,33 +54,24 @@ class AutoRuParser():
 
                 year = item.find_element(By.CLASS_NAME, "ListingItem__year").text
 
-                # TODO: get image urls from autoru
-                # img = item.find_element(By.CLASS_NAME, "Brazzers__image-wrapper")
-                # img_link = img.find_element(By.TAG_NAME, "img").get_attribute('src')
+                img_url = self.get_img(item)
 
             except Exception as e:
                 print(f'{e}')
                 continue
 
             if all([name, url, mileage, price, color, year]):
-                car['site'] = 'autoru'
-                car['name'] = name
-                car['url'] = url
-                car['image_src'] = 'No'
-                car['milage'] = mileage
-                car['price'] = price
-                car['color'] = color
-                car['year'] = year
+                car = CarCard(site='autoru',
+                              name=name,
+                              mileage=mileage,
+                              url=url,
+                              image_src=img_url,
+                              price=price,
+                              color=color,
+                              year=year
+                              )
+
                 result.append(car)
 
-        print("closing")
         self.driver.close()
         return result
-
-
-if __name__ == "__main__":
-    s = Session()
-    f = Car(brand="toyota", model="avensis")
-    p = AutoRuParser(f, s)
-    res = p.parse()
-    print(res)

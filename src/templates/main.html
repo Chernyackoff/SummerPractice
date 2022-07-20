@@ -1,0 +1,83 @@
+{% extends "base.html" %}
+{% block content %}
+    <h1 class="text-center">Welcome to the JDM ZONE</h1>
+    <section>
+        <div class="card">
+            <div class="card-header">
+                <h4 class="card-title">Choose:</h4>
+            </div>
+            <div class="card-body">
+                <h3>Brand:</h3>
+                <select class="form-select" aria-label="Default select example" onchange="activate_model();" id="brand">
+                    <option value="default">Select brand</option>
+                    {% for brand in brands %}
+                        <option value="{{ brand }}">{{ brand }}</option>
+                    {% endfor %}
+                </select>
+                <script>
+                    function activate_model() {
+                        var value = document.getElementById('brand').value;
+
+                        var select = document.getElementById("model");
+                        select.disabled = value === "default";
+                        activate_button();
+                        if (value !== "default") {
+                            let children = select.options
+                            if (children.length > 1) {
+                                for (let i = 1; i < children.length; i++) {
+                                    select.removeChild(children[1])
+                                }
+                            }
+                            let model;
+                            let models = {{ models| safe }};
+                            switch (value) {
+                                case "subaru":
+                                    model = models.subaru;
+                                    break;
+                                case "toyota":
+                                    model = models.toyota;
+                                    break;
+                                case "honda":
+                                    model = models.honda;
+                                    break;
+                                case "mazda":
+                                    model = models.mazda;
+                                    break;
+                            }
+                            for (i in model) {
+                                var opt = document.createElement('option');
+                                opt.value = model[i];
+                                opt.innerHTML = model[i];
+                                select.appendChild(opt);
+                            }
+
+                        }
+                    }
+                </script>
+                <h3>Model:</h3>
+                <select class="form-select" aria-label="Default select example" id="model" onchange="activate_button()" disabled>
+                    <option value="default">Select brand</option>
+                </select>
+                <script>
+                    function activate_button() {
+                        let value = document.getElementById('model').value;
+                        let brand = document.getElementById('brand').value;
+                        let button = document.getElementById('submit');
+
+                        if(value !== 'default' && brand !== 'default'){
+                            button.classList.remove('disabled');
+                            button.setAttribute('aria-disabled', 'false')
+                            button.setAttribute('href', `/${brand}/${value}`)
+                        }
+                        else{
+                            button.classList.add('disabled')
+                            button.setAttribute('aria-disabled', 'true')
+                            button.setAttribute('href', '/')
+                        }
+                    }
+                </script>
+                <a id="submit" type="button" class="btn btn-dark disabled" aria-disabled="true" href="/">Submit</a>
+            </div>
+        </div>
+    </section>
+{% endblock %}

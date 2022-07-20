@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+{% block content %}
+    {% for res in results %}
+        <section>
+            <div class="card mb-3">
+                <div class="row g-0">
+                    <div class="col-md-4">
+                        {% if res['image_src'] != 'No' %}
+                            <img src="{{ res['image_src'] }}" class="img-fluid rounded-start" alt="Car photo">
+                        {% else %}
+                            <img src="{{ source }}" class="img-fluid rounded-start" alt="Car photo">
+                        {% endif %}
+                    </div>
+                    <div class="col-md-8">
+                        <div class="card-body">
+                            <a href="{{ res['url'] }}">
+                                <h3 class="card-title">{{ res['name'] }}
+                                    {% if res['site'] == 'autoru' %}
+                                        <img src="https://auto.ru/favicon.ico">
+                                    {% else %}
+                                        <img src="https://www.avito.ru/favicon.ico">
+                                    {% endif %}
+                                </h3>
+                            </a>
+                            <p class="card-text fw-bold">Год:</p>
+                            <p class="card-text"> {{ res['year'] }}</p>
+                            <p class="card-text fw-bold">Пробег:</p>
+                            <p class="card-text">{{ res['mileage'] }}</p>
+                            <p class="card-text fw-bold">Цвет:</p>
+                            <p class="card-text"> {{ res['color'] }}</p>
+                            <p class="card-text fw-bold">Цена:</p>
+                            <p class="card-text fw-bold">{{ res['price'] }}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    {% endfor %}
+{% endblock %}

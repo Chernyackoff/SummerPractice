@@ -1,32 +1,19 @@
-from typing import TypedDict, NamedTuple
-from webdriver_manager.firefox import GeckoDriverManager
-from selenium.webdriver.firefox.service import Service
-from selenium.webdriver.firefox.options import Options
-from selenium import webdriver
+from src.parsers.autoru_parser import AutoRuParser
+from src.parsers.avito_parser import AvitoParser
+from src.parsers.service_parts import *
 
 
-class Car(TypedDict):
-    brand: str
-    model: str
+class MainParser():
+    def __init__(self, params: Car):
+        self.autoru = AutoRuParser(params)
+        self.avito = AvitoParser(params)
 
+    def parse(self) -> list[CarCard]:
+        res: list[CarCard] = []
+        try:
+            res.extend(self.avito.parse())
 
-class CarCard(TypedDict):
-    url: str
-    image_src: str
-    name: str
-    milage: str
-    color: str
-    year: str
-    price: str
-    site: str
-
-
-class Session():
-    def __init__(self):
-        # options = Options()
-        # options.add_argument("--headless")
-        self.driver = webdriver.Firefox(service=Service(GeckoDriverManager().install()))
-        print("Driver evoked")
-
-    def close(self):
-        self.driver.close()
+            res.extend(self.autoru.parse())
+        except ValueError as e:
+            return None
+        return res
